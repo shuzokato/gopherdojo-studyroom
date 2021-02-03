@@ -15,19 +15,20 @@ import (
 // Convert image
 func Convert() {
 	fpaths := getFiles(".")
-	fmt.Println(fpaths)
 	for _, fpath := range fpaths {
+		newFile(fpath)
 		buf, file := readImage(fpath)
 		defer file.Close()
 		img, err := jpeg.Decode(buf)
-		var pngFileName string
-		pngFileName = fmt.Sprint(fpath[:len(fpath)-len(filepath.Ext(fpath))], ".png")
-		out, err := os.Create(pngFileName)
+		var newFileName string
+		newFileName = fmt.Sprint(fpath[:len(fpath)-len(filepath.Ext(fpath))], ".png")
+		out, err := os.Create(newFileName)
 		if err != nil {
 			panic(err)
 		}
 		defer out.Close()
 		png.Encode(out, img)
+		fmt.Printf("sucessfully converted '%s' to '%s'.\n", fpath, newFileName)
 	}
 }
 
@@ -58,4 +59,17 @@ func getFiles(dir string) []string {
 		}
 	}
 	return fpaths
+}
+
+type myFile struct {
+	name     string
+	fileType string
+}
+
+func newFile(fpath string) *myFile {
+	file := new(myFile)
+	file.name = filepath.Base(fpath)
+	file.fileType = fpath[:len(fpath)-len(filepath.Ext(fpath))]
+	fmt.Printf("file detected:%s\n", file.name)
+	return file
 }
